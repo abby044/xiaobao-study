@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6efe5">
+<title>課業複習樂園</title>
+<style>
+:root{
+ --bg:#fbf6ef;--card:#fff;--ink:#3e382f;--muted:#7c7469;
+ --a:#e3a56f;--b:#8db8a7;--c:#9eabd2;--line:#eee4d8;
+ --good:#4c9770;--bad:#cf6666;--shadow:0 10px 28px rgba(74,56,35,.09)
+}
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;
+background:linear-gradient(180deg,#fffaf4,#f7f2eb);color:var(--ink)}
+header{padding:28px 18px 14px;text-align:center} h1{margin:0;font-size:clamp(30px,6vw,48px)}
+.sub{color:var(--muted);margin-top:8px}.wrap{max-width:1000px;margin:auto;padding:16px}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0 18px}
+.tab{border:1px solid var(--line);background:#fff;padding:10px 16px;border-radius:999px;cursor:pointer}
+.tab.active{background:var(--ink);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.card,.panel{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.card{padding:18px;cursor:pointer;transition:.18s}.card:hover{transform:translateY(-2px)}
+.icon{font-size:38px}.card h3{margin:6px 0}.card p{margin:0;color:var(--muted);line-height:1.55}
+.panel{padding:20px;margin-top:16px}.hidden{display:none!important}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:0;border-radius:14px;padding:11px 16px;font-size:15px;cursor:pointer}
+.primary{background:var(--a);color:#fff}.ghost{background:#f4eee7;color:var(--ink)}
+.badge{display:inline-block;background:#f5efe8;border-radius:999px;padding:7px 11px;font-size:13px;margin:2px}
+.unit-list{display:grid;gap:10px;margin-top:12px}
+.unit{padding:14px 15px;border:1px solid var(--line);border-radius:14px;background:#fffdf9;cursor:pointer}
+.unit:hover{background:#faf3e9}.unit .status{font-size:12px;color:var(--muted)}
+.lesson-list{display:grid;gap:9px;margin-top:12px}
+.lesson{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;background:#faf7f2;border-radius:12px;cursor:pointer}
+.lesson.lock{opacity:.55;cursor:default}.lesson strong{font-size:15px}
+.notice{background:#fff8df;border:1px solid #f0df9f;border-radius:14px;padding:12px 14px;color:#6b5d2e;margin-top:12px;font-size:14px}
+.q{font-size:22px;line-height:1.5}.answer{width:100%;text-align:left;border:2px solid transparent;background:#faf7f2;padding:12px 14px;border-radius:13px;margin:7px 0;font-size:16px}
+.answer.correct{background:#e9f5ee;border-color:var(--good)}.answer.wrong{background:#fdecec;border-color:var(--bad)}
+.progress{height:11px;background:#eee7df;border-radius:999px;overflow:hidden;margin:12px 0}.bar{height:100%;background:var(--b);width:0}
+.score{font-size:56px;font-weight:800;color:var(--a);text-align:center}
+.small{font-size:13px;color:var(--muted)} footer{text-align:center;color:var(--muted);padding:28px}
+</style>
+</head>
+<body>
+<header>
+ <h1>🌟 課業複習樂園</h1>
+ <div class="sub">五年級｜依學校使用版本建立</div>
+</header>
+
+<main class="wrap">
+<section id="home">
+ <div class="tabs">
+  <button class="tab active" data-sem="上">五年級上學期</button>
+  <button class="tab" data-sem="下">五年級下學期</button>
+ </div>
+ <div class="grid" id="subjects">
+  <div class="card" data-sub="國語"><div class="icon">📚</div><h3>國語｜康軒</h3><p>課文理解、字音字形、詞語與寫作</p></div>
+  <div class="card" data-sub="數學"><div class="icon">➗</div><h3>數學｜南一</h3><p>概念、計算、應用與素養題</p></div>
+  <div class="card" data-sub="自然"><div class="icon">🔬</div><h3>自然｜翰林</h3><p>觀察、實驗、科學概念與生活應用</p></div>
+  <div class="card" data-sub="社會"><div class="icon">🌏</div><h3>社會｜翰林</h3><p>地理、歷史、公民與生活素養</p></div>
+  <div class="card" data-sub="英文"><div class="icon">🔤</div><h3>英文｜翰林</h3><p>Here We Go｜單字、句型、閱讀</p></div>
+ </div>
+ <div class="panel">
+  <div class="top"><b>📊 我的複習紀錄</b><span class="badge" id="record">尚未作答</span></div>
+  <p class="small">之後會把「錯題重練、段考模式、單元隨機出題」都接在這裡。</p>
+ </div>
+</section>
+
+<section id="subjectPage" class="hidden">
+ <div class="top">
+  <button class="btn ghost" onclick="goHome()">← 回首頁</button>
+  <span class="badge" id="subjectBadge"></span>
+ </div>
+ <div class="panel">
+  <h2 id="subjectTitle"></h2>
+  <div id="unitList" class="unit-list"></div>
+ </div>
+</section>
+
+<section id="unitPage" class="hidden">
+ <div class="top">
+  <button class="btn ghost" onclick="backSubject()">← 回科目</button>
+  <span class="badge" id="unitBadge"></span>
+ </div>
+ <div class="panel">
+  <h2 id="unitTitle"></h2>
+  <div id="lessonList" class="lesson-list"></div>
+ </div>
+</section>
+
+<section id="quizPage" class="hidden">
+ <div class="top">
+  <button class="btn ghost" onclick="backUnit()">← 回單元</button>
+  <span class="badge" id="quizBadge"></span>
+ </div>
+ <div class="panel">
+  <div class="small" id="qCount"></div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="q" id="question"></div>
+  <div id="answers"></div>
+  <div id="feedback" style="margin-top:10px;font-weight:700"></div>
+  <button id="next" class="btn primary hidden" style="margin-top:14px" onclick="nextQ()">下一題 →</button>
+ </div>
+</section>
+
+<section id="resultPage" class="hidden">
+ <div class="panel">
+  <div style="text-align:center;font-size:46px">🎉</div>
+  <div class="score" id="finalScore"></div>
+  <p id="finalMsg" style="text-align:center"></p>
+  <div style="text-align:center">
+   <button class="btn primary" onclick="retry()">再挑戰一次</button>
+   <button class="btn ghost" onclick="backUnit()">回單元</button>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer>課業複習樂園・115 學年度架構版</footer>
+
+<script>
+const CURRICULUM={
+"上":{
+ "國語":{
+  version:"康軒",
+  units:[
+   {name:"第一單元｜擁夢飛翔",lessons:[
+    {name:"第1課｜蚊帳大使",ready:true,key:"國語1"},
+    {name:"第2課｜從空中看臺灣",ready:true,key:"國語2"},
+    {name:"第3課｜攀岩高手",ready:false}
+   ]},
+   {name:"第二單元｜生活中的藝術",lessons:[
+    {name:"第4課｜恆久的美",ready:true,key:"國語4"},
+    {name:"第5課｜待核對課名",ready:false},
+    {name:"第6課｜待核對課名",ready:false}
+   ]},
+   {name:"第三單元",lessons:[
+    {name:"第7課｜待核對課名",ready:false},{name:"第8課｜待核對課名",ready:false},{name:"第9課｜待核對課名",ready:false}
+   ]},
+   {name:"第四單元",lessons:[
+    {name:"第10課｜待核對課名",ready:false},{name:"第11課｜待核對課名",ready:false},{name:"第12課｜待核對課名",ready:false}
+   ]}
+  ]},
+ "數學":{
+  version:"南一",
+  units:[
+   {name:"五上單元架構",lessons:[
+    {name:"單元1｜待官方課次核對",ready:false},{name:"單元2｜待官方課次核對",ready:false},
+    {name:"單元3｜待官方課次核對",ready:false},{name:"單元4｜待官方課次核對",ready:false},
+    {name:"單元5｜待官方課次核對",ready:false},{name:"單元6｜待官方課次核對",ready:false},
+    {name:"單元7｜待官方課次核對",ready:false},{name:"單元8｜待官方課次核對",ready:false},
+    {name:"單元9｜待官方課次核對",ready:false}
+   ]}
+  ]},
+ "自然":{
+  version:"翰林",
+  units:[
+   {name:"第一單元｜觀測太陽",lessons:[{name:"核心概念練習",ready:true,key:"自然太陽"}]},
+   {name:"第二單元｜植物的奧秘",lessons:[{name:"核心概念練習",ready:true,key:"自然植物"}]},
+   {name:"第三單元｜熱對物質的影響",lessons:[{name:"核心概念練習",ready:true,key:"自然熱"}]},
+   {name:"第四單元｜空氣與燃燒",lessons:[{name:"核心概念練習",ready:true,key:"自然燃燒"}]}
+  ]},
+ "社會":{
+  version:"翰林",
+  units:[
+   {name:"第一主題｜臺灣的位置與自然環境",lessons:[{name:"地理位置與環境",ready:true,key:"社會地理"}]},
+   {name:"第二主題｜史前文化與原住民族",lessons:[{name:"史前與原住民族",ready:true,key:"社會史前"}]},
+   {name:"第三主題｜大航海時期的臺灣",lessons:[{name:"荷西與多族群互動",ready:true,key:"社會航海"}]},
+   {name:"第四主題｜清帝國時期與土地開發",lessons:[{name:"治理、開發與變遷",ready:true,key:"社會清領"}]}
+  ]},
+ "英文":{
+  version:"翰林 Here We Go 5",
+  units:[
+   {name:"Starter / Review",lessons:[{name:"基礎複習",ready:true,key:"英文基礎"}]},
+   {name:"Unit 1",lessons:[{name:"Vocabulary & Sentence Pattern",ready:false}]},
+   {name:"Unit 2",lessons:[{name:"Vocabulary & Sentence Pattern",ready:false}]},
+   {name:"Unit 3",lessons:[{name:"Vocabulary & Sentence Pattern",ready:false}]},
+   {name:"Unit 4",lessons:[{name:"Vocabulary & Sentence Pattern",ready:false}]}
+  ]}
+ },
+"下":{
+ "國語":{version:"康軒",units:[{name:"五下課次架構",lessons:Array.from({length:12},(_,i)=>({name:`第${i+1}課｜待核對課名`,ready:false}))}]},
+ "數學":{version:"南一",units:[{name:"五下單元架構",lessons:Array.from({length:10},(_,i)=>({name:`單元${i+1}｜待官方課次核對`,ready:false}))}]},
+ "自然":{version:"翰林",units:[{name:"五下自然｜課次待核對",lessons:[{name:"題庫框架已建立",ready:false}]}]},
+ "社會":{version:"翰林",units:[{name:"五下社會｜課次待核對",lessons:[{name:"題庫框架已建立",ready:false}]}]},
+ "英文":{version:"翰林 Here We Go 6",units:[
+   {name:"Starter / Review",lessons:[{name:"基礎複習",ready:true,key:"英文基礎"}]},
+   {name:"Unit 1",lessons:[{name:"Vocabulary & Sentence Pattern",ready:false}]},
+   {name:"Unit 2",lessons:[{name:"Vocabulary & Sentence Pattern",ready:false}]},
+   {name:"Unit 3",lessons:[{name:"Vocabulary & Sentence Pattern",ready:false}]},
+   {name:"Unit 4",lessons:[{name:"Vocabulary & Sentence Pattern",ready:false}]}
+ ]}
+}
+};
+
+const QUESTIONS={
+"國語1":[
+ {q:"「大使」在文章標題中，最可能指肩負某種使命的人。下列哪一項最接近「使命」的意思？",a:["重要任務","旅遊行程","休息時間","遊戲規則"],c:0},
+ {q:"閱讀人物故事時，想快速掌握主角做了什麼，最適合先找什麼？",a:["人物、事件與結果","每一個標點符號","所有形容詞","生字總筆畫"],c:0}
+],
+"國語2":[
+ {q:"閱讀描述臺灣景觀的文章時，作者從高空觀察，最可能呈現哪一種寫法？",a:["由整體到局部","只寫對話","只列數字","完全不描寫景色"],c:0},
+ {q:"「從空中看臺灣」這類文章若同時寫美麗與環境問題，主要作用是？",a:["呈現不同面向並引發思考","讓文章變短","避免讀者理解","只為增加形容詞"],c:0}
+],
+"國語4":[
+ {q:"「恆久」最接近下列哪一個意思？",a:["長久不變","突然發生","十分短暫","快速移動"],c:0},
+ {q:"找一段文章的大意時，最適合怎麼做？",a:["找關鍵詞句再歸納","只看第一個字","只數句子數量","跳過整段"],c:0}
+],
+"自然太陽":[
+ {q:"描述太陽在天空中的位置，常會用到哪兩項資訊？",a:["方位與高度角","重量與體積","速度與密度","顏色與氣味"],c:0},
+ {q:"一天中太陽位置的變化具有什麼特性？",a:["具有規律性","完全隨機","永遠不變","只在冬天改變"],c:0}
+],
+"自然植物":[
+ {q:"植物的根最主要的功能之一是？",a:["吸收水分與固定植物","製造聲音","產生火焰","反射月光"],c:0},
+ {q:"植物可以利用不同部位繁殖，這表示什麼？",a:["繁殖方式具有多樣性","所有植物只能用種子","根沒有任何作用","葉一定不能繁殖"],c:0}
+],
+"自然熱":[
+ {q:"物質受熱後，可能產生什麼變化？",a:["體積或狀態改變","一定變成金屬","一定消失","永遠沒有變化"],c:0},
+ {q:"熱的傳播方式之一是？",a:["傳導","發芽","蒸散","授粉"],c:0}
+],
+"自然燃燒":[
+ {q:"燃燒通常需要可燃物、氧氣以及什麼條件？",a:["達到燃點","完全沒有熱","沒有空氣","只有水"],c:0},
+ {q:"用杯子罩住燃燒中的蠟燭，火焰最後熄滅，主要原因是？",a:["可用的氧氣逐漸不足","蠟燭突然變重","玻璃吸走光線","杯子產生水"],c:0}
+],
+"社會地理":[
+ {q:"臺灣位於亞洲東部、四面環海，這種位置特色最可能影響什麼？",a:["交通、文化交流與產業發展","只有校園作息","只有文字筆畫","完全沒有影響"],c:0},
+ {q:"研究一地的地形、氣候與水文，主要屬於哪一類內容？",a:["地理","音樂","數學純計算","美術技法"],c:0}
+],
+"社會史前":[
+ {q:"了解史前人類生活，常會依靠哪一類證據？",a:["考古遺址與出土物","現代廣告","即時新聞","手機訊息"],c:0},
+ {q:"臺灣原住民族文化呈現多樣性，最適合用哪一種態度理解？",a:["尊重差異","全部視為相同","否定傳統","只看單一族群"],c:0}
+],
+"社會航海":[
+ {q:"大航海時期，不同勢力來到臺灣的重要原因之一是？",a:["臺灣位於海上交通要道","臺灣沒有海岸","臺灣位於歐洲中心","當時完全沒有貿易"],c:0},
+ {q:"研究不同族群在臺灣的互動，最重要的是？",a:["同時理解各方背景與影響","只記一個人名","忽略時間順序","只看地圖顏色"],c:0}
+],
+"社會清領":[
+ {q:"清代臺灣人口增加與土地開發，最可能帶來什麼？",a:["聚落與產業發展","所有土地停止使用","完全沒有交通需求","人口一定減少"],c:0},
+ {q:"理解政府治理方式的改變時，最適合比較什麼？",a:["不同時期政策與影響","課本頁數","字體大小","圖片數量"],c:0}
+],
+"英文基礎":[
+ {q:"Which word means「早餐」?",a:["breakfast","library","winter","teacher"],c:0},
+ {q:"Which sentence asks about time?",a:["What time is it?","How old are you?","Where are you from?","What color is it?"],c:0}
+]
+};
+
+let sem="上", sub="", unitIndex=0, lesson=null, qs=[], qi=0,score=0,locked=false;
+const $=id=>document.getElementById(id);
+function show(id){["home","subjectPage","unitPage","quizPage","resultPage"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden")}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");sem=b.dataset.sem;});
+document.querySelectorAll(".card").forEach(c=>c.onclick=()=>openSubject(c.dataset.sub));
+function openSubject(s){
+ sub=s; const d=CURRICULUM[sem][sub]; $("subjectBadge").textContent=`五${sem}｜${d.version}`;
+ $("subjectTitle").textContent=`${sub}｜${d.version}`; const list=$("unitList"); list.innerHTML="";
+ d.units.forEach((u,i)=>{const x=document.createElement("div");x.className="unit";x.innerHTML=`<b>${u.name}</b><div class="status">${u.lessons.filter(l=>l.ready).length} / ${u.lessons.length} 個練習已可使用</div>`;x.onclick=()=>openUnit(i);list.appendChild(x)});
+ show("subjectPage");
+}
+function openUnit(i){
+ unitIndex=i; const u=CURRICULUM[sem][sub].units[i]; $("unitBadge").textContent=`${sub}｜五${sem}`;$("unitTitle").textContent=u.name;
+ const list=$("lessonList");list.innerHTML="";
+ u.lessons.forEach(l=>{const x=document.createElement("div");x.className="lesson"+(l.ready?"":" lock");x.innerHTML=`<strong>${l.name}</strong><span>${l.ready?"開始練習 →":"建置中"}</span>`;if(l.ready)x.onclick=()=>startQuiz(l);list.appendChild(x)});
+ if(u.lessons.some(l=>!l.ready)){const n=document.createElement("div");n.className="notice";n.textContent="為避免課次版本錯置，尚未核對完成的課名先標示「建置中」。";list.appendChild(n)}
+ show("unitPage");
+}
+function startQuiz(l){lesson=l;qs=[...(QUESTIONS[l.key]||[])].sort(()=>Math.random()-.5);qi=0;score=0;locked=false;$("quizBadge").textContent=l.name;show("quizPage");renderQ()}
+function renderQ(){
+ locked=false;$("next").classList.add("hidden");$("feedback").textContent="";$("qCount").textContent=`第 ${qi+1} 題 / 共 ${qs.length} 題`;$("bar").style.width=`${qi/qs.length*100}%`;
+ const q=qs[qi];$("question").textContent=q.q;const a=$("answers");a.innerHTML="";
+ q.a.forEach((t,i)=>{const b=document.createElement("button");b.className="answer";b.textContent=`${String.fromCharCode(65+i)}. ${t}`;b.onclick=()=>choose(i,b);a.appendChild(b)})
+}
+function choose(i,b){if(locked)return;locked=true;const q=qs[qi];[...$("answers").children].forEach((x,j)=>{if(j===q.c)x.classList.add("correct")});if(i===q.c){score++;$("feedback").textContent="✅ 答對了！";$("feedback").style.color="var(--good)"}else{b.classList.add("wrong");$("feedback").textContent=`❌ 正確答案：${q.a[q.c]}`;$("feedback").style.color="var(--bad)"};$("next").classList.remove("hidden")}
+function nextQ(){qi++;if(qi>=qs.length)finish();else renderQ()}
+function finish(){const pct=Math.round(score/qs.length*100);$("finalScore").textContent=pct+" 分";$("finalMsg").textContent=pct>=90?"很棒！這個重點掌握得很好 🌟":pct>=70?"不錯，再做一次會更熟練 💪":"把錯題看懂後再挑戰一次 📚";let r=JSON.parse(localStorage.getItem("study_records")||"[]");r.push({sem,sub,lesson:lesson.name,score:pct,date:new Date().toLocaleString()});localStorage.setItem("study_records",JSON.stringify(r));updateRecord();show("resultPage")}
+function updateRecord(){const r=JSON.parse(localStorage.getItem("study_records")||"[]");$("record").textContent=r.length?`已完成 ${r.length} 次｜最佳 ${Math.max(...r.map(x=>x.score))} 分`:"尚未作答"}
+function goHome(){updateRecord();show("home")} function backSubject(){openSubject(sub)} function backUnit(){openUnit(unitIndex)} function retry(){startQuiz(lesson)}
+updateRecord();
+</script>
+</body>
+</html>
